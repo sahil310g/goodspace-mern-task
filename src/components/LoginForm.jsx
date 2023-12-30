@@ -40,7 +40,7 @@ function LoginForm() {
           <div className="lets-go">
             <Button>
               <Link
-                to={"/chat"}
+                to={"/speechToText"}
                 style={{ color: "inherit", "text-decoration": "none" }}
               >
                 Lets Go!!
