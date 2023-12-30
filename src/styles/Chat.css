@@ -45,6 +45,13 @@
   margin-right: 2rem;
 }
 
+.video{
+  border-radius: 20px;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
 .mute-button {
   background: none;
   border: none;

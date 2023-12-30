@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCallback } from "react";
 import "../styles/TextToSpeech.css";
 import Clip from "../assets/images/Clip.png";
@@ -23,6 +23,24 @@ const TextToSpeech = () => {
     setSentText(text);
     setText("");
   };
+
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          // Assign the stream to the video element
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        })
+        .catch((error) => {
+          console.error('Error accessing the camera:', error);
+        });
+    }
+  }, []);
 
   return (
     <div className="textToSpeech">
@@ -64,7 +82,9 @@ const TextToSpeech = () => {
         </div>
         <div className="lower-box">
           <div className="text-box">
-            <div className="small-video"></div>
+            <div className="small-video">
+            <video className="video" ref={videoRef} autoPlay playsInline />
+            </div>
             <div className="button-div">
               <Link to="/speechToText">
                 <Button className="chat-button">

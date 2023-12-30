@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useCallback } from "react";
 import "../styles/Chat.css";
 import MuteButton from "../assets/images/MuteButton.png";
@@ -22,6 +22,25 @@ import SentTextBubble from "./SentTextBubble";
 import ReceivedTextBubble from "./ReceivedTextBubble";
 
 const SpeechToText = () => {
+
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          // Assign the stream to the video element
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        })
+        .catch((error) => {
+          console.error('Error accessing the camera:', error);
+        });
+    }
+  }, []);
+
   return (
     <div className="chat">
       <Header />
@@ -36,7 +55,9 @@ const SpeechToText = () => {
       <div className="outer-box">
         <div className="big-box">
           <div className="inner-box" />
-          <div className="big-video"></div>
+          <div className="big-video">
+            <video className="video" ref={videoRef} autoPlay playsInline />
+          </div>
           <div className="mute-btn button-div">
             <Button>
               <img className="mute-button" alt="MuteButton" src={MuteButton} />

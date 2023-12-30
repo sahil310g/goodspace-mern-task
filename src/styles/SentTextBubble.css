@@ -20,7 +20,7 @@ p {
 
 .sentTextBubble .message {
   display: flex;
-  width: 56%;
+  width: 55%;
   height: fit-content;
   padding: 1rem;
   padding-right: 0;

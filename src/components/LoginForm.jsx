@@ -2,10 +2,21 @@ import React, { useState } from "react";
 
 import { Button, Input } from "@mui/base";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+
+  const handleOnClick=()=>{
+    axios.post("http://localhost:4000/api/users/",{
+      email:email,
+      password:password,
+      chats:[]
+    })
+  }
+
   return (
     <div>
       <div className="rectangle-parent">
@@ -38,7 +49,7 @@ function LoginForm() {
         <div className="button">
           <div className="button-child" />
           <div className="lets-go">
-            <Button>
+            <Button onClick={handleOnClick}>
               <Link
                 to={"/speechToText"}
                 style={{ color: "inherit", "text-decoration": "none" }}
