@@ -1,11 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
+import BackgroundImage from '../assets/images/Background.png';
+import GroupImage from '../assets/images/GroupImage.png';
+import '../styles/Login.css'
+import LoginForm from './LoginForm';
 
-function Login() {
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+
   return (
-    <div>
-        Login
+    <div className="apple-vision-pro-ui">
+      <img className="background-icon" alt="BackgroundImage" src={BackgroundImage} />
+      <div className="group-parent">
+        <img className="group-icon" alt="GroupImage" src={GroupImage} />
+        <b className="welcome-to">Welcome to</b>
+        <b className="welcome-to">Goodspace Communications</b>
+      </div>
+      <LoginForm/>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
+
+  
