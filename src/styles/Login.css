@@ -1,10 +1,8 @@
 .background-icon{
   position: absolute;
-  /* top: -615px; */
   left: 0;
   width: 1440px;
   height: 816px;
-  /* object-fit: cover; */
 }
 .button-child,
 .frame-child {
