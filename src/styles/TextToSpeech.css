@@ -9,6 +9,7 @@
   flex-shrink: 0;
   background-size: cover;
   background-position: center;
+  overflow-y: auto;
 }
 
 .text-input {

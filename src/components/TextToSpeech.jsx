@@ -1,25 +1,29 @@
 import React, { useState } from "react";
 import { useCallback } from "react";
 import "../styles/TextToSpeech.css";
-import MuteButton from "../assets/images/MuteButton.png";
-import ChatButton from "../assets/images/ChatButton.png";
 import Clip from "../assets/images/Clip.png";
 import Microphone from "../assets/images/Microphone.png";
 import VideoImage from "../assets/images/VideoImage.png";
-import photo from "../assets/images/photo.png";
-import Volume from "../assets/images/Volume.png";
 import OuterCircle from "../assets/images/OuterCircle.png";
 import InnerCircle from "../assets/images/InnerCircle.png";
 import Pause from "../assets/images/Pause.png";
 import Header from "./Header";
 import { Button, Input } from "@mui/base";
 
-import BackgroundImage from "../assets/images/Background.png";
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
 import { Link } from "react-router-dom";
+import SentTextBubble from "./SentTextBubble";
+import ReceivedTextBubble from "./ReceivedTextBubble";
 
 const TextToSpeech = () => {
-  const [sentText, setSentText] = useState('');
+  const [text, setText] = useState("");
+  const [sentText, setSentText] = useState("");
+
+  const handleSubmit = () => {
+    setSentText(text);
+    setText("");
+  };
+
   return (
     <div className="textToSpeech">
       <Header />
@@ -34,24 +38,27 @@ const TextToSpeech = () => {
       <div className="outer-box">
         <div className="big-box">
           <div className="inner-box" />
-          <div className="chats"></div>
+          <div className="chats">
+            <SentTextBubble text={sentText} />
+            <ReceivedTextBubble user="User1" text="lorem34" />
+          </div>
           <div className="text-input">
             <div className="text-area">
               <Input
-                value={sentText}
-                onChange={(e)=>{setSentText(e.target.value)}}
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                }}
               />
             </div>
             <div className="icons">
               <Button>
-
-            <img className="inner-icons" src={Clip} alt="" />
+                <img className="inner-icons" src={Clip} alt="" />
               </Button>
-            <Button>
 
-            <img className="inner-icons" src={Microphone} alt="" />
-            </Button>
-              
+              <Button onClick={handleSubmit}>
+                <img className="inner-icons" src={Microphone} alt="" />
+              </Button>
             </div>
           </div>
         </div>
@@ -80,7 +87,7 @@ const TextToSpeech = () => {
               />
               <img className="inner-circle" src={InnerCircle} alt="" />
               <img className="pause-btn" src={Pause} alt="" />
-          <p>Pause</p>
+              <p>Pause</p>
             </Button>
           </div>
         </div>

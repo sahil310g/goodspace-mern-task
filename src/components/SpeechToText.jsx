@@ -18,6 +18,8 @@ import BackgroundImage from "../assets/images/Background.png";
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
 import { Link } from "react-router-dom";
 import TextToSpeech from "./TextToSpeech";
+import SentTextBubble from "./SentTextBubble";
+import ReceivedTextBubble from "./ReceivedTextBubble";
 
 const SpeechToText = () => {
   return (
@@ -54,7 +56,10 @@ const SpeechToText = () => {
         </div>
         <div className="lower-box">
           <div className="text-box">
-            <div className="chats"></div>
+            <div className="chats">
+              <SentTextBubble text='text'/>
+              <ReceivedTextBubble user='user1' text='text'/>
+            </div>
             <div className="button-div">
               <Link to="/textToSpeech">
                 <Button className="chat-button">
