@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Chat.css";
 import MuteButton from "../assets/images/MuteButton.png";
 import ChatButton from "../assets/images/ChatButton.png";
@@ -7,55 +7,61 @@ import OuterCircle from "../assets/images/OuterCircle.png";
 import InnerCircle from "../assets/images/InnerCircle.png";
 import Pause from "../assets/images/Pause.png";
 import Header from "./Header";
-import { Button, Input } from "@mui/base";
+import { Button } from "@mui/base";
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
 import { Link } from "react-router-dom";
-import SentTextBubble from "./SentTextBubble";
-import ReceivedTextBubble from "./ReceivedTextBubble";
 import Video from "./Video";
+import ChatPrint from "./ChatPrint";
 
-const SpeechToText = () => {
-
-  const [transcript, setTranscript] = useState('');
+const SpeechToText = ({ chatList, setChatList, socket }) => {
+  const [transcript, setTranscript] = useState("");
   const [listening, setListening] = useState(false);
-  let recognition = null;
 
+  // For speech recognition
+  let recognition = null;
   recognition = new window.webkitSpeechRecognition(); // Initialize SpeechRecognition
-  recognition.lang = 'en-US'; // Set language
+  recognition.lang = "en-US"; // Set language
   recognition.continuous = true; // Continuous listening
   const startListening = () => {
-    console.log('Speech recognition Entered...');
-
+    console.log("Speech recognition Entered...");
     recognition.onstart = () => {
       setListening(true);
-      console.log('Speech recognition started...');
+      console.log("Speech recognition started...");
     };
-
     recognition.onresult = (event) => {
-      const currentTranscript = event.results[event.results.length - 1][0].transcript;
+      const currentTranscript =
+        event.results[event.results.length - 1][0].transcript;
       setTranscript(currentTranscript);
+      console.log(transcript);
     };
-
     recognition.onend = () => {
       setListening(false);
-      console.log('Speech recognition ended.');
+      console.log("Speech recognition ended.");
     };
-
     recognition.start();
   };
 
-  const stopListening = () => {
-    console.log(transcript);
-    console.log('Speech recognition Exit...');
+  // Response from OpenAI is received
+  socket.on("receiveMessage", (data) => {
+    const newList = [...chatList, { role: "server", message: data.message }];
+    setChatList(newList);
+  });
 
+  useEffect(() => {
+    if (transcript) {
+      socket.emit("sendMessage", { text: transcript });
+      const newList = [...chatList, { role: "client", message: transcript }];
+      setChatList(newList);
+    }
+  }, [transcript]);
+
+  const stopListening = () => {
     if (recognition) {
       recognition.stop();
       setListening(false);
-      console.log('Speech recognition stopped.');
+      console.log("Speech recognition stopped.");
     }
-    setTranscript("");
   };
-
 
   return (
     <div className="chat">
@@ -72,7 +78,7 @@ const SpeechToText = () => {
         <div className="big-box">
           <div className="inner-box" />
           <div className="big-video">
-            <Video/>
+            <Video />
           </div>
           <div className="mute-btn button-div">
             <Button onClick={listening ? stopListening : startListening}>
@@ -94,8 +100,7 @@ const SpeechToText = () => {
         <div className="lower-box">
           <div className="text-box">
             <div className="chats">
-              <SentTextBubble text={transcript}/>
-              <ReceivedTextBubble user='user1' text='text'/>
+              <ChatPrint chatList={chatList} />
             </div>
             <div className="button-div">
               <Link to="/textToSpeech">
@@ -119,7 +124,7 @@ const SpeechToText = () => {
               />
               <img className="inner-circle" src={InnerCircle} alt="" />
               <img className="pause-btn" src={Pause} alt="" />
-          <p>Pause</p>
+              <p>Pause</p>
             </Button>
           </div>
         </div>

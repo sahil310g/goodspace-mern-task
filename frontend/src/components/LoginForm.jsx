@@ -11,7 +11,7 @@ function LoginForm() {
 
   const handleOnClick = async () => {
     try {
-      const response = await axios.post("http://localhost:4000/api/users/", {
+      const response = await axios.post("http://localhost:4000/api/users", {
         email: email,
         password: password,
         chats: [],

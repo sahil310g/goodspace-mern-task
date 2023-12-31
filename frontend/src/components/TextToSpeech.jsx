@@ -8,37 +8,41 @@ import InnerCircle from "../assets/images/InnerCircle.png";
 import Pause from "../assets/images/Pause.png";
 import Header from "./Header";
 import { Button, Input } from "@mui/base";
-
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
 import { Link } from "react-router-dom";
-import SentTextBubble from "./SentTextBubble";
-import ReceivedTextBubble from "./ReceivedTextBubble";
 import Video from "./Video";
+import ChatPrint from "./ChatPrint";
 
-const TextToSpeech = () => {
+const TextToSpeech = ({chatList, setChatList, socket}) => {
   const [text, setText] = useState("");
-  const [sentText, setSentText] = useState("");
   const [textToSpeak, setTextToSpeak] = useState("");
 
+  // Response from OpenAI is received
+  socket.on("receiveMessage", (data) => {
+    const newList = [...chatList, { role: "server", message: data.message }];
+    setChatList(newList);
+    setTextToSpeak(data.message);
+  });
+  
   const handleSubmit = () => {
-    setSentText(text);
-    setTextToSpeak(text);
+    socket.emit("sendMessage", { text });
+    const newList = [...chatList, { role: "client", message: text }];
+    setChatList(newList);
     setText("");
   };
-  
+
+  // Converting response generated to Speech
   const speak = () => {
     if ('speechSynthesis' in window) {
       const synth = window.speechSynthesis;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
-
       synth.cancel(); // Clear any existing utterances
-
       synth.speak(utterance);
     } else {
       console.error('Speech synthesis not supported');
     }
+    setTextToSpeak("");
   };
-  
   useEffect(() => {
     if (textToSpeak !== '') {
       speak(); // Start speech synthesis when text is available
@@ -60,8 +64,7 @@ const TextToSpeech = () => {
         <div className="big-box">
           <div className="inner-box" />
           <div className="chats">
-            <SentTextBubble text={sentText} />
-            <ReceivedTextBubble user="User1" text="lorem34" />
+              <ChatPrint chatList={chatList}/>
           </div>
           <div className="text-input">
             <div className="text-area">

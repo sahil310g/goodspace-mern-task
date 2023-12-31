@@ -1,18 +1,20 @@
 import './App.css';
 import Login from "./components/Login";
 import SpeechToText from "./components/SpeechToText";
-import Header from "./components/Header";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import TextToSpeech from './components/TextToSpeech';
+import { useState } from 'react';
+import Socket, {socket} from './components/Socket';
 
 function App() {
+  const [chatList, setChatList] = useState([]);
+  <Socket />
   return (
     <Router>
-      {/* <Header/> */}
       <Routes>
-        <Route path="/" element={<Login/>}/>
-        <Route path="/speechToText" element={<SpeechToText/>}/>
-        <Route path="/textToSpeech" element={<TextToSpeech/>}/>
+        <Route path="/" element={<Login />} />
+        <Route path="/speechToText" element={<SpeechToText chatList={chatList} setChatList={setChatList} socket={socket} />} />
+        <Route path="/textToSpeech" element={<TextToSpeech chatList={chatList} setChatList={setChatList} socket={socket} />} />
       </Routes>
     </Router>
   );
