@@ -49,6 +49,12 @@
   margin-left: 2rem;
 }
 
+.video-div{
+  background-size: cover;
+  background-position: center;
+  height: inherit;
+}
+
 .button-div {
   display: flex;
   flex-direction: column;

@@ -1,45 +1,61 @@
-import React, { useEffect, useRef } from "react";
-import { useCallback } from "react";
+import React, { useState } from "react";
 import "../styles/Chat.css";
 import MuteButton from "../assets/images/MuteButton.png";
 import ChatButton from "../assets/images/ChatButton.png";
-import Clip from "../assets/images/Clip.png";
-import Microphone from "../assets/images/Microphone.png";
-import VectorImage from "../assets/images/Vector.png";
-import photo from "../assets/images/photo.png";
 import Volume from "../assets/images/Volume.png";
 import OuterCircle from "../assets/images/OuterCircle.png";
 import InnerCircle from "../assets/images/InnerCircle.png";
 import Pause from "../assets/images/Pause.png";
 import Header from "./Header";
 import { Button, Input } from "@mui/base";
-
-import BackgroundImage from "../assets/images/Background.png";
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
 import { Link } from "react-router-dom";
-import TextToSpeech from "./TextToSpeech";
 import SentTextBubble from "./SentTextBubble";
 import ReceivedTextBubble from "./ReceivedTextBubble";
+import Video from "./Video";
 
 const SpeechToText = () => {
 
-  const videoRef = useRef(null);
+  const [transcript, setTranscript] = useState('');
+  const [listening, setListening] = useState(false);
+  let recognition = null;
 
-  useEffect(() => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          // Assign the stream to the video element
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        })
-        .catch((error) => {
-          console.error('Error accessing the camera:', error);
-        });
+  recognition = new window.webkitSpeechRecognition(); // Initialize SpeechRecognition
+  recognition.lang = 'en-US'; // Set language
+  recognition.continuous = true; // Continuous listening
+  const startListening = () => {
+    console.log('Speech recognition Entered...');
+
+    recognition.onstart = () => {
+      setListening(true);
+      console.log('Speech recognition started...');
+    };
+
+    recognition.onresult = (event) => {
+      const currentTranscript = event.results[event.results.length - 1][0].transcript;
+      setTranscript(currentTranscript);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+      console.log('Speech recognition ended.');
+    };
+
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    console.log(transcript);
+    console.log('Speech recognition Exit...');
+
+    if (recognition) {
+      recognition.stop();
+      setListening(false);
+      console.log('Speech recognition stopped.');
     }
-  }, []);
+    setTranscript("");
+  };
+
 
   return (
     <div className="chat">
@@ -56,10 +72,10 @@ const SpeechToText = () => {
         <div className="big-box">
           <div className="inner-box" />
           <div className="big-video">
-            <video className="video" ref={videoRef} autoPlay playsInline />
+            <Video/>
           </div>
           <div className="mute-btn button-div">
-            <Button>
+            <Button onClick={listening ? stopListening : startListening}>
               <img className="mute-button" alt="MuteButton" src={MuteButton} />
             </Button>
             <p>Mute</p>
@@ -78,7 +94,7 @@ const SpeechToText = () => {
         <div className="lower-box">
           <div className="text-box">
             <div className="chats">
-              <SentTextBubble text='text'/>
+              <SentTextBubble text={transcript}/>
               <ReceivedTextBubble user='user1' text='text'/>
             </div>
             <div className="button-div">

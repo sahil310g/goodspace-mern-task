@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/TextToSpeech.css";
 import Clip from "../assets/images/Clip.png";
 import Microphone from "../assets/images/Microphone.png";
@@ -14,33 +13,37 @@ import BackgroundVideo from "../assets/videos/Background-Video.mp4";
 import { Link } from "react-router-dom";
 import SentTextBubble from "./SentTextBubble";
 import ReceivedTextBubble from "./ReceivedTextBubble";
+import Video from "./Video";
 
 const TextToSpeech = () => {
   const [text, setText] = useState("");
   const [sentText, setSentText] = useState("");
+  const [textToSpeak, setTextToSpeak] = useState("");
 
   const handleSubmit = () => {
     setSentText(text);
+    setTextToSpeak(text);
     setText("");
   };
+  
+  const speak = () => {
+    if ('speechSynthesis' in window) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
-  const videoRef = useRef(null);
+      synth.cancel(); // Clear any existing utterances
 
-  useEffect(() => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          // Assign the stream to the video element
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        })
-        .catch((error) => {
-          console.error('Error accessing the camera:', error);
-        });
+      synth.speak(utterance);
+    } else {
+      console.error('Speech synthesis not supported');
     }
-  }, []);
+  };
+  
+  useEffect(() => {
+    if (textToSpeak !== '') {
+      speak(); // Start speech synthesis when text is available
+    }
+  }, [textToSpeak]);
 
   return (
     <div className="textToSpeech">
@@ -83,7 +86,7 @@ const TextToSpeech = () => {
         <div className="lower-box">
           <div className="text-box">
             <div className="small-video">
-            <video className="video" ref={videoRef} autoPlay playsInline />
+              <Video/>
             </div>
             <div className="button-div">
               <Link to="/speechToText">
