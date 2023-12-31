@@ -7,15 +7,25 @@ import axios from "axios";
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+  const [authentication, setAuthentication] = useState(false);
 
-  const handleOnClick=()=>{
-    axios.post("http://localhost:4000/api/users/",{
-      email:email,
-      password:password,
-      chats:[]
-    })
-  }
+  const handleOnClick = async () => {
+    try {
+      const response = await axios.post("http://localhost:4000/api/users/", {
+        email: email,
+        password: password,
+        chats: [],
+      });
+
+      setAuthentication(response.data.success);
+
+      if (!response.data.success) {
+        alert("Incorrect password. Please try again");
+      }
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+  };
 
   return (
     <div>
@@ -51,7 +61,7 @@ function LoginForm() {
           <div className="lets-go">
             <Button onClick={handleOnClick}>
               <Link
-                to={"/speechToText"}
+                to={authentication ? "/speechToText" : "/"}
                 style={{ color: "inherit", "text-decoration": "none" }}
               >
                 Lets Go!!
