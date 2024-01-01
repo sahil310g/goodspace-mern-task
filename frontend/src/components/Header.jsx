@@ -1,6 +1,6 @@
-import React from 'react'
-import VectorImage from '../assets/images/Vector.png';
-import '../styles/Header.css'
+import React from "react";
+import VectorImage from "../assets/images/Vector.png";
+import "../styles/Header.css";
 
 function Header() {
   return (
@@ -11,7 +11,7 @@ function Header() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Header
+export default Header;

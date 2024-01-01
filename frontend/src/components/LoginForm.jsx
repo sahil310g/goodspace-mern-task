@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-
-import { Button, Input } from "@mui/base";
+import { Button } from "@mui/base";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -11,25 +10,30 @@ function LoginForm({ setUserEmail }) {
 
   const navigate = useNavigate();
 
-  
   const handleOnClick = async () => {
-    try {
-      const response = await axios.post("https://chat-app-td6w.onrender.com/api/login", {
-        email: email,
-        password: password,
-      });
+    if (!email || !email.includes("@") || !email.includes(".")) {
+      alert("Please enter a valid email address");
+    } else {
+      try {
+        const response = await axios.post(
+          "https://chat-app-td6w.onrender.com/api/login",
+          {
+            email: email,
+            password: password,
+          }
+        );
 
-      setAuthentication(response.data.success);
-      
-      setUserEmail(email);
-      if (response.data.success) {
-        navigate('/speechToText');
+        setAuthentication(response.data.success);
+        setUserEmail(email);
+        if (response.data.success) {
+          navigate("/speechToText");
+        }
+        if (!response.data.success) {
+          alert("Incorrect password. Please try again");
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
       }
-      if (!response.data.success) {
-        alert("Incorrect password. Please try again");
-      }
-    } catch (error) {
-      console.error("Error:", error.message);
     }
   };
 
@@ -43,8 +47,9 @@ function LoginForm({ setUserEmail }) {
             <div className="your-email-id-wrapper">
               <div className="your-email-id">Your Email id</div>
             </div>
-            <Input
+            <input
               className="frame-item"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -54,10 +59,11 @@ function LoginForm({ setUserEmail }) {
             <div className="your-email-id-wrapper">
               <div className="your-email-id">Password</div>
             </div>
-            <Input
+            <input
               className="frame-item"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              type="password"
               required
             />
           </div>
@@ -67,7 +73,7 @@ function LoginForm({ setUserEmail }) {
           <div className="lets-go">
             <Button onClick={handleOnClick}>
               <Link
-                to={authentication ? "/speechToText" : "/"} 
+                to={authentication ? "/speechToText" : "/"}
                 style={{ color: "inherit", "text-decoration": "none" }}
               >
                 Lets Go!!

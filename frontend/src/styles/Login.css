@@ -1,4 +1,4 @@
-.background-icon{
+.background-icon {
   position: absolute;
   left: 0;
   width: 1440px;
@@ -129,26 +129,25 @@
   font-family: var(--font-poppins);
 }
 
-Button{
-    background-color: transparent;
-    border: none;
-    color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    
+Button {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
-Input{
-    background-color: transparent;
-    border: none;
-    color: black;
-    font-size: inherit;
-    font-weight: inherit;
-    height: 48px;
-    width: 100%;
-    padding-left: 10px;
+Input {
+  background-color: transparent;
+  border: none;
+  color: black;
+  font-size: inherit;
+  font-weight: inherit;
+  height: 48px;
+  width: 100%;
+  padding-left: 10px;
 }
 
-Input:focus{
+Input:focus {
   outline: none;
 }

@@ -21,14 +21,17 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
 
   const navigate = useNavigate();
 
-  const chatContainerRef = useRef(null);
-
   // Function to scroll chat container to the bottom
+  const chatContainerRef = useRef(null);
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   };
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatList]);
 
   // For speech recognition
   let recognition = null;
@@ -77,10 +80,6 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [chatList]);
-
   const speak = () => {
     if ("speechSynthesis" in window) {
       const synth = window.speechSynthesis;
@@ -99,9 +98,12 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
   }, [textToSpeak]);
 
   const fetchOldChats = async () => {
-    const chatResponse = await axios.post("https://chat-app-td6w.onrender.com/api/chats", {
-      email: userEmail,
-    });
+    const chatResponse = await axios.post(
+      "https://chat-app-td6w.onrender.com/api/chats",
+      {
+        email: userEmail,
+      }
+    );
     const chatList = chatResponse.data.chats.map((item) => {
       return {
         role: item.role,
