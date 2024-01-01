@@ -44,7 +44,7 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
 
   // Response from OpenAI is received
   socket.on("receiveMessage", (data) => {
-    const newList = [...chatList, { role: "server", message: data.message }];
+    const newList = [...chatList, { role: "assistant", message: data.message }];
     setChatList(newList);
     setTextToSpeak(data.message);
     socket.emit("userEmail", { userEmail });
@@ -53,7 +53,7 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
   useEffect(() => {
     if (transcript) {
       socket.emit("sendMessage", { text: transcript });
-      const newList = [...chatList, { role: "client", message: transcript }];
+      const newList = [...chatList, { role: "user", message: transcript }];
       setChatList(newList);
       socket.emit("userEmail", { userEmail });
     }
@@ -105,7 +105,7 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
             <Button onClick={listening ? stopListening : startListening}>
               <img className="mute-button" alt="MuteButton" src={MuteButton} />
             </Button>
-            <p>{listening?"Unmute":"Mute"}</p>
+            <p>{listening?"Mute":"Unmute"}</p>
           </div>
           <div className="button-div">
             <div className="volume ">

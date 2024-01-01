@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     });
 });
 
-app.post('/api/users', async function (req, res) {
+app.post('/api/login', async function (req, res) {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email });
     console.log(password);
@@ -82,9 +82,9 @@ app.post('/api/users', async function (req, res) {
         const passwordMatch = (password === existingUser.password);
         if (passwordMatch) {
             console.log('Password match', existingUser.password);
-            res.json({ success: true, result: existingUser });
+            res.json({ success: true });
             // Passwords match, user is authenticated
-            return { success: true, existingUser };
+            return { success: true };
         } else {
             console.log('Incorret');
             res.json({ success: false, message: 'Incorrect password' })
@@ -100,12 +100,20 @@ app.post('/api/users', async function (req, res) {
         });
         newUser.save()
             .then(result => {
-                res.json({ success: true, result });
+                res.json({ success: true });
             })
             .catch(err => {
                 res.json(err);
             });
     }
 });
+
+app.post('/api/chats', async function (req, res) {
+    const { email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+    console.log(existingUser);
+    res.json({chats: existingUser.chats});
+    return res;
+})
 
 server.listen(port);

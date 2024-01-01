@@ -1,26 +1,41 @@
 import React, { useState } from "react";
 
 import { Button, Input } from "@mui/base";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function LoginForm({setChatList, socket, setUserEmail}) {
+function LoginForm({ setChatList, socket, setUserEmail }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authentication, setAuthentication] = useState(false);
 
+  const navigate = useNavigate();
+
+  
   const handleOnClick = async () => {
     try {
-      const response = await axios.post("https://chat-app-td6w.onrender.com/api/users", {
+      const response = await axios.post("http://localhost:4000/api/login", {
         email: email,
         password: password,
-        chats: []
       });
 
       setAuthentication(response.data.success);
+      
       setUserEmail(email);
-      setChatList(response.data.result.chats);
-      // socket.emit("userEmail", {email});
+      if (response.data.success) {
+        const chatResponse = await axios.post("http://localhost:4000/api/chats", {
+          email: email,
+          password: password,
+        });
+        const chatList = chatResponse.data.chats.map((item) => {
+          return {
+            role: item.role,
+            message: item.content,
+          };
+        });
+        setChatList(chatList);
+        navigate('/speechToText');
+      }
 
       if (!response.data.success) {
         alert("Incorrect password. Please try again");
@@ -64,7 +79,7 @@ function LoginForm({setChatList, socket, setUserEmail}) {
           <div className="lets-go">
             <Button onClick={handleOnClick}>
               <Link
-                to={authentication ? "/speechToText" : "/"}
+                to={authentication ? "/speechToText" : "/"} 
                 style={{ color: "inherit", "text-decoration": "none" }}
               >
                 Lets Go!!

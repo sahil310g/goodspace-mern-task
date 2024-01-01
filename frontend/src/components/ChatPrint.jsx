@@ -11,13 +11,13 @@ function ChatPrint({ chatList }) {
             <div
               key={index}
               className={
-                chat.role === "client"
+                chat.role === "user"
                   ? "message sender-message"
                   : "message receiver-message"
               }
             >
               <p>
-                {chat.role === "client" ? (
+                {chat.role === "user" ? (
                   <SentTextBubble text={chat.message} />
                 ) : (
                   <ReceivedTextBubble user={"AI"} text={chat.message} />

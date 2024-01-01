@@ -19,7 +19,7 @@ const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
 
   // Response from OpenAI is received
   socket.on("receiveMessage", (data) => {
-    const newList = [...chatList, { role: "server", message: data.message }];
+    const newList = [...chatList, { role: "assistant", message: data.message }];
     setChatList(newList);
     setTextToSpeak(data.message);
     socket.emit("userEmail", { userEmail });
@@ -28,7 +28,7 @@ const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
   const handleSubmit = () => {
     socket.emit("sendMessage", { text });
     socket.emit("userEmail", { userEmail });
-    const newList = [...chatList, { role: "client", message: text }];
+    const newList = [...chatList, { role: "user", message: text }];
     setChatList(newList);
     setText("");
   };
