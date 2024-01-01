@@ -4,7 +4,7 @@ import { Button, Input } from "@mui/base";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-function LoginForm() {
+function LoginForm({setChatList, socket, setUserEmail}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authentication, setAuthentication] = useState(false);
@@ -14,10 +14,13 @@ function LoginForm() {
       const response = await axios.post("https://chat-app-td6w.onrender.com/api/users", {
         email: email,
         password: password,
-        chats: [],
+        chats: []
       });
 
       setAuthentication(response.data.success);
+      setUserEmail(email);
+      setChatList(response.data.result.chats);
+      // socket.emit("userEmail", {email});
 
       if (!response.data.success) {
         alert("Incorrect password. Please try again");

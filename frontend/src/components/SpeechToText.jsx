@@ -13,9 +13,10 @@ import { Link } from "react-router-dom";
 import Video from "./Video";
 import ChatPrint from "./ChatPrint";
 
-const SpeechToText = ({ chatList, setChatList, socket }) => {
+const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
   const [transcript, setTranscript] = useState("");
   const [listening, setListening] = useState(false);
+  const [textToSpeak, setTextToSpeak] = useState("");
 
   // For speech recognition
   let recognition = null;
@@ -45,6 +46,8 @@ const SpeechToText = ({ chatList, setChatList, socket }) => {
   socket.on("receiveMessage", (data) => {
     const newList = [...chatList, { role: "server", message: data.message }];
     setChatList(newList);
+    setTextToSpeak(data.message);
+    socket.emit("userEmail", { userEmail });
   });
 
   useEffect(() => {
@@ -52,6 +55,7 @@ const SpeechToText = ({ chatList, setChatList, socket }) => {
       socket.emit("sendMessage", { text: transcript });
       const newList = [...chatList, { role: "client", message: transcript }];
       setChatList(newList);
+      socket.emit("userEmail", { userEmail });
     }
   }, [transcript]);
 
@@ -62,6 +66,23 @@ const SpeechToText = ({ chatList, setChatList, socket }) => {
       console.log("Speech recognition stopped.");
     }
   };
+
+  const speak = () => {
+    if ('speechSynthesis' in window) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      synth.cancel(); // Clear any existing utterances
+      synth.speak(utterance);
+    } else {
+      console.error('Speech synthesis not supported');
+    }
+    setTextToSpeak("");
+  };
+  useEffect(() => {
+    if (textToSpeak !== '') {
+      speak(); // Start speech synthesis when text is available
+    }
+  }, [textToSpeak]);
 
   return (
     <div className="chat">
@@ -84,7 +105,7 @@ const SpeechToText = ({ chatList, setChatList, socket }) => {
             <Button onClick={listening ? stopListening : startListening}>
               <img className="mute-button" alt="MuteButton" src={MuteButton} />
             </Button>
-            <p>Mute</p>
+            <p>{listening?"Unmute":"Mute"}</p>
           </div>
           <div className="button-div">
             <div className="volume ">

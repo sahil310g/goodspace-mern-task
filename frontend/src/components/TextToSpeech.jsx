@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 import Video from "./Video";
 import ChatPrint from "./ChatPrint";
 
-const TextToSpeech = ({chatList, setChatList, socket}) => {
+const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
   const [text, setText] = useState("");
   const [textToSpeak, setTextToSpeak] = useState("");
 
@@ -22,10 +22,12 @@ const TextToSpeech = ({chatList, setChatList, socket}) => {
     const newList = [...chatList, { role: "server", message: data.message }];
     setChatList(newList);
     setTextToSpeak(data.message);
+    socket.emit("userEmail", { userEmail });
   });
   
   const handleSubmit = () => {
     socket.emit("sendMessage", { text });
+    socket.emit("userEmail", { userEmail });
     const newList = [...chatList, { role: "client", message: text }];
     setChatList(newList);
     setText("");

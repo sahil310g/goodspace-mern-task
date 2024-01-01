@@ -8,13 +8,14 @@ import Socket, {socket} from './components/Socket';
 
 function App() {
   const [chatList, setChatList] = useState([]);
+  const [userEmail, setUserEmail] = useState('');
   <Socket />
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/speechToText" element={<SpeechToText chatList={chatList} setChatList={setChatList} socket={socket} />} />
-        <Route path="/textToSpeech" element={<TextToSpeech chatList={chatList} setChatList={setChatList} socket={socket} />} />
+        <Route path="/" element={<Login setChatList={setChatList} setUserEmail={setUserEmail} socket={socket} />} />
+        <Route path="/speechToText" element={<SpeechToText chatList={chatList} setChatList={setChatList} userEmail={userEmail} socket={socket} />} />
+        <Route path="/textToSpeech" element={<TextToSpeech chatList={chatList} setChatList={setChatList} userEmail={userEmail} socket={socket} />} />
       </Routes>
     </Router>
   );

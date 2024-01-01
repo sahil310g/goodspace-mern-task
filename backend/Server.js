@@ -15,13 +15,12 @@ app.use(express.json());
 app.use(cors());
 
 // Establishing a MongoDB connection 
-const url = "mongodb+srv://sahil310g:thm3CJocluBRnYY4@cluster0.pejowqh.mongodb.net/chatDB?retryWrites=true&w=majority";
+const url = process.env.DATABASE_URL;
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
 const chatSchema = new mongoose.Schema({
-    from: { type: String, required: true },
-    to: { type: String, required: true },
-    message: { type: String, required: true }
+    role: { type: String, required: true },
+    content: { type: String, required: true }
 });
 const userSchema = new mongoose.Schema({
     email: String,
@@ -32,12 +31,12 @@ const User = mongoose.model('User', userSchema);
 
 // Creating a socket connection
 const socket = require("socket.io");
-const { Configuration, OpenAIApi } = require("openai");
-const key = "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";
-const configuration = new Configuration({
-    apiKey: key,
+const key = process.env.OPENAI_API_KEY;
+const OpenAIApi  = require('openai');
+const openai = new OpenAIApi({
+  api_key: key,
 });
-const openai = new OpenAIApi(configuration);
+
 const io = new socket.Server(server, {
     path: "/api/socket.io",
     cookie: false,
@@ -49,14 +48,22 @@ const chatHistory = [];
 io.on("connection", (socket) => {
     socket.on("sendMessage", async (data) => {
         chatHistory.push({ role: "user", content: data.text });
-        const chatCompletion = await openai.createChatCompletion({
+        const chatCompletion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: chatHistory,
         });
         socket.emit("receiveMessage", {
-            message: `${chatCompletion.data.choices[0].message.content}`,
+            message: `${chatCompletion.choices[0].message.content}`,
         });
-        chatHistory.push(chatCompletion.data.choices[0].message);
+        console.log(chatCompletion.choices[0]);
+        chatHistory.push(chatCompletion.choices[0].message);
+    });
+
+    socket.on("userEmail", async (data) => {
+        const existingUser = await User.findOne({ email: data.userEmail });
+        // existingUser.chats = chatHistory;
+
+        // existingUser.save();
     });
 
     socket.on("disconnect", () => {
@@ -87,7 +94,6 @@ app.post('/api/users', async function (req, res) {
     }
     else {
         const newUser = new User({
-            // id: uuidv4(),
             email: email,
             password: password,
             chats: [],
