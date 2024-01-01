@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../styles/Chat.css";
 import MuteButton from "../assets/images/MuteButton.png";
 import ChatButton from "../assets/images/ChatButton.png";
@@ -9,14 +9,26 @@ import Pause from "../assets/images/Pause.png";
 import Header from "./Header";
 import { Button } from "@mui/base";
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Video from "./Video";
 import ChatPrint from "./ChatPrint";
+import axios from "axios";
 
 const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
   const [transcript, setTranscript] = useState("");
   const [listening, setListening] = useState(false);
   const [textToSpeak, setTextToSpeak] = useState("");
+
+  const navigate = useNavigate();
+
+  const chatContainerRef = useRef(null);
+
+  // Function to scroll chat container to the bottom
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
 
   // For speech recognition
   let recognition = null;
@@ -47,15 +59,13 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
     const newList = [...chatList, { role: "assistant", message: data.message }];
     setChatList(newList);
     setTextToSpeak(data.message);
-    socket.emit("userEmail", { userEmail });
   });
 
   useEffect(() => {
     if (transcript) {
-      socket.emit("sendMessage", { text: transcript });
+      socket.emit("sendMessage", { text: transcript, userEmail });
       const newList = [...chatList, { role: "user", message: transcript }];
       setChatList(newList);
-      socket.emit("userEmail", { userEmail });
     }
   }, [transcript]);
 
@@ -67,22 +77,47 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
     }
   };
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatList]);
+
   const speak = () => {
-    if ('speechSynthesis' in window) {
+    if ("speechSynthesis" in window) {
       const synth = window.speechSynthesis;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       synth.cancel(); // Clear any existing utterances
       synth.speak(utterance);
     } else {
-      console.error('Speech synthesis not supported');
+      console.error("Speech synthesis not supported");
     }
     setTextToSpeak("");
   };
   useEffect(() => {
-    if (textToSpeak !== '') {
+    if (textToSpeak !== "") {
       speak(); // Start speech synthesis when text is available
     }
   }, [textToSpeak]);
+
+  const fetchOldChats = async () => {
+    const chatResponse = await axios.post("https://chat-app-td6w.onrender.com/api/chats", {
+      email: userEmail,
+    });
+    const chatList = chatResponse.data.chats.map((item) => {
+      return {
+        role: item.role,
+        message: item.content,
+      };
+    });
+    setChatList(chatList);
+  };
+
+  useEffect(() => {
+    if (userEmail === "") {
+      navigate("/");
+    } else {
+      fetchOldChats();
+    }
+  }, []);
 
   return (
     <div className="chat">
@@ -105,7 +140,7 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
             <Button onClick={listening ? stopListening : startListening}>
               <img className="mute-button" alt="MuteButton" src={MuteButton} />
             </Button>
-            <p>{listening?"Mute":"Unmute"}</p>
+            <p>{listening ? "Mute" : "Unmute"}</p>
           </div>
           <div className="button-div">
             <div className="volume ">
@@ -120,7 +155,7 @@ const SpeechToText = ({ chatList, setChatList, userEmail, socket }) => {
         </div>
         <div className="lower-box">
           <div className="text-box">
-            <div className="chats">
+            <div className="chats" ref={chatContainerRef}>
               <ChatPrint chatList={chatList} />
             </div>
             <div className="button-div">

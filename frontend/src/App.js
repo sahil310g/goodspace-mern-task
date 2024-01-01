@@ -13,7 +13,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login setChatList={setChatList} setUserEmail={setUserEmail} socket={socket} />} />
+        <Route path="/" element={<Login setUserEmail={setUserEmail}/>} />
         <Route path="/speechToText" element={<SpeechToText chatList={chatList} setChatList={setChatList} userEmail={userEmail} socket={socket} />} />
         <Route path="/textToSpeech" element={<TextToSpeech chatList={chatList} setChatList={setChatList} userEmail={userEmail} socket={socket} />} />
       </Routes>

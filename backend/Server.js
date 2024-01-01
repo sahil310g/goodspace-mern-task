@@ -32,9 +32,9 @@ const User = mongoose.model('User', userSchema);
 // Creating a socket connection
 const socket = require("socket.io");
 const key = process.env.OPENAI_API_KEY;
-const OpenAIApi  = require('openai');
+const OpenAIApi = require('openai');
 const openai = new OpenAIApi({
-  api_key: key,
+    api_key: key,
 });
 
 const io = new socket.Server(server, {
@@ -44,9 +44,14 @@ const io = new socket.Server(server, {
 });
 
 // Configuring a socket event handler
-const chatHistory = [];
 io.on("connection", (socket) => {
     socket.on("sendMessage", async (data) => {
+        const existingUser = await User.findOne({ email: data.userEmail });
+        const chatHistory = existingUser.chats.map(item => ({
+            role: item.role,
+            content: item.content
+        }));
+
         chatHistory.push({ role: "user", content: data.text });
         const chatCompletion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -57,13 +62,8 @@ io.on("connection", (socket) => {
         });
         console.log(chatCompletion.choices[0]);
         chatHistory.push(chatCompletion.choices[0].message);
-    });
-
-    socket.on("userEmail", async (data) => {
-        const existingUser = await User.findOne({ email: data.userEmail });
-        // existingUser.chats = chatHistory;
-
-        // existingUser.save();
+        existingUser.chats = chatHistory;
+        existingUser.save();
     });
 
     socket.on("disconnect", () => {
@@ -109,10 +109,10 @@ app.post('/api/login', async function (req, res) {
 });
 
 app.post('/api/chats', async function (req, res) {
-    const { email, password } = req.body;
+    const { email } = req.body;
     const existingUser = await User.findOne({ email });
     console.log(existingUser);
-    res.json({chats: existingUser.chats});
+    res.json({ chats: existingUser.chats });
     return res;
 })
 

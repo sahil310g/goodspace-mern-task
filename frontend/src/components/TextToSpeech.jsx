@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../styles/TextToSpeech.css";
 import Clip from "../assets/images/Clip.png";
 import Microphone from "../assets/images/Microphone.png";
@@ -9,13 +9,25 @@ import Pause from "../assets/images/Pause.png";
 import Header from "./Header";
 import { Button, Input } from "@mui/base";
 import BackgroundVideo from "../assets/videos/Background-Video.mp4";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Video from "./Video";
 import ChatPrint from "./ChatPrint";
+import axios from "axios";
 
-const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
+const TextToSpeech = ({ chatList, setChatList, userEmail, socket }) => {
   const [text, setText] = useState("");
   const [textToSpeak, setTextToSpeak] = useState("");
+
+  const navigate = useNavigate();
+
+  const chatContainerRef = useRef(null);
+
+  // Function to scroll chat container to the bottom
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
 
   // Response from OpenAI is received
   socket.on("receiveMessage", (data) => {
@@ -24,10 +36,9 @@ const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
     setTextToSpeak(data.message);
     socket.emit("userEmail", { userEmail });
   });
-  
+
   const handleSubmit = () => {
-    socket.emit("sendMessage", { text });
-    socket.emit("userEmail", { userEmail });
+    socket.emit("sendMessage", { text, userEmail });
     const newList = [...chatList, { role: "user", message: text }];
     setChatList(newList);
     setText("");
@@ -35,21 +46,46 @@ const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
 
   // Converting response generated to Speech
   const speak = () => {
-    if ('speechSynthesis' in window) {
+    if ("speechSynthesis" in window) {
       const synth = window.speechSynthesis;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       synth.cancel(); // Clear any existing utterances
       synth.speak(utterance);
     } else {
-      console.error('Speech synthesis not supported');
+      console.error("Speech synthesis not supported");
     }
     setTextToSpeak("");
   };
   useEffect(() => {
-    if (textToSpeak !== '') {
+    if (textToSpeak !== "") {
       speak(); // Start speech synthesis when text is available
     }
   }, [textToSpeak]);
+
+  const fetchOldChats = async () => {
+    const chatResponse = await axios.post("https://chat-app-td6w.onrender.com/api/chats", {
+      email: userEmail,
+    });
+    const chatList = chatResponse.data.chats.map((item) => {
+      return {
+        role: item.role,
+        message: item.content,
+      };
+    });
+    setChatList(chatList);
+  };
+
+  useEffect(() => {
+    if (userEmail === "") {
+      navigate("/");
+    } else {
+      fetchOldChats();
+    }
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatList]);
 
   return (
     <div className="textToSpeech">
@@ -65,8 +101,8 @@ const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
       <div className="outer-box">
         <div className="big-box">
           <div className="inner-box" />
-          <div className="chats">
-              <ChatPrint chatList={chatList}/>
+          <div className="chats" ref={chatContainerRef}>
+            <ChatPrint chatList={chatList} />
           </div>
           <div className="text-input">
             <div className="text-area">
@@ -91,7 +127,7 @@ const TextToSpeech = ({chatList, setChatList, userEmail, socket}) => {
         <div className="lower-box">
           <div className="text-box">
             <div className="small-video">
-              <Video/>
+              <Video />
             </div>
             <div className="button-div">
               <Link to="/speechToText">

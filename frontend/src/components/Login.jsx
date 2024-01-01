@@ -6,7 +6,7 @@ import Header from './Header';
 import LoginForm from './LoginForm';
 
 
-const Login = ({setChatList, setUserEmail, socket}) => {
+const Login = ({setUserEmail}) => {
   return (
     <div className="apple-vision-pro-ui">
       <Header/>
@@ -16,7 +16,7 @@ const Login = ({setChatList, setUserEmail, socket}) => {
         <b className="welcome-to">Welcome to</b>
         <b className="welcome-to">Goodspace Communications</b>
       </div>
-      <LoginForm setChatList={setChatList} setUserEmail={setUserEmail} socket={socket} />
+      <LoginForm setUserEmail={setUserEmail} />
     </div>
   );
 };
