@@ -1,25 +1,31 @@
 Real-time chat app with camera/microphone, OpenAI API, Socket.io, MongoDB, supporting text-to-speech and speech-to-text
 
-**Cloning the application:**
-- git clone https://github.com/sahil310g/goodspace-mern-task
-
-**Setting backend**
+**Backend Setup**
 - Create .env file in backend folder
 - Add OpenAI API Key in .env file by name OPENAI_API_KEY
-- Add MongoDB Database url in .env file by name DATABASE_URL
-
-**Creating OpenAI API Key**
 - Go to https://platform.openai.com/ for account setup and creating Secret API key
+- Add MongoDB Database url in .env file by name DATABASE_URL
+- Go to https://cloud.mongodb.com/ to create a new database and copy the connection string
+  
+.env file
+```
+DATABASE_URL = "MongoDB connection string"
+OPENAI_API_KEY = "OpenAI API Key"
+```
 
-**Running backend service**
-- cd backend
-- npm init
-- nodemon Server.js
+- To run the backend server
+```
+cd backend
+npm init
+nodemon Server.js
+```
 
-**Setting & Running frontend**
-- cd frontend
-- npm install
-- npm start
+**Frontend Setup**
+```
+cd frontend
+npm install
+npm start
+```
 
 **Project Usage**
 - An interactive AI application that provides information, explanations, and guidance on various topics.
